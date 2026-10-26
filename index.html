@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luyện Tập Đọc Hiểu Tiếng Anh Trực Tuyến</title>
+  <style>
+    /* Biến toàn cục & Bảng màu thân thiện cho học sinh */
+    :root {
+      --primary-color: #1e3a8a;      /* Xanh dương đậm chủ đạo */
+      --primary-light: #eff6ff;
+      --secondary-color: #0284c7;
+      --text-color: #1f2937;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --success-color: #15803d;
+      --success-bg: #dcfce7;
+      --error-color: #b91c1c;
+      --error-bg: #fee2e2;
+      --warning-color: #b45309;
+      --warning-bg: #fef3c7;
+      --base-font-size: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: var(--base-font-size);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Thanh Header cố định */
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 2px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      z-index: 10;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Công cụ đổi kích thước chữ (Phân hóa học sinh khiếm thị/mắt yếu) */
+    .font-resizer {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--bg-color);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .font-resizer span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-right: 0.25rem;
+    }
+
+    .btn-font {
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-color);
+      transition: all 0.2s;
+    }
+
+    .btn-font.active, .btn-font:hover {
+      background: var(--card-bg);
+      border-color: var(--border-color);
+      color: var(--secondary-color);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    /* Đồng hồ đếm ngược */
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border: 1px solid #bfdbfe;
+      transition: all 0.3s;
+    }
+
+    .timer-badge.warning {
+      background-color: var(--error-bg);
+      color: var(--error-color);
+      border-color: #fca5a5;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+
+    .btn-submit {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    .btn-submit:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Bố cục nội dung chia đôi màn hình */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      height: calc(100vh - 65px);
+    }
+
+    .pane {
+      overflow-y: auto;
+      padding: 1.75rem;
+      height: 100%;
+    }
+
+    /* Cột bên trái: Bài đọc */
+    .reading-pane {
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+    }
+
+    .reading-card {
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .reading-header {
+      margin-bottom: 1.25rem;
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 0.75rem;
+    }
+
+    .reading-header h2 {
+      font-size: 1.6rem;
+      color: var(--primary-color);
+      margin-bottom: 0.25rem;
+    }
+
+    .reading-meta {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-style: italic;
+    }
+
+    .reading-body p {
+      margin-bottom: 1.15rem;
+      text-align: justify;
+      color: #334155;
+    }
+
+    /* Cột bên phải: Câu hỏi */
+    .questions-pane {
+      background-color: var(--bg-color);
+    }
+
+    .questions-container {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Thẻ thông tin học sinh */
+    .student-info-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .student-info-card label {
+      font-weight: 600;
+      color: var(--primary-color);
+      white-space: nowrap;
+    }
+
+    .student-info-card input[type="text"] {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .student-info-card input[type="text"]:focus {
+      border-color: var(--secondary-color);
+    }
+
+    .student-info-card input[type="text"]:disabled {
+      background-color: #f1f5f9;
+      color: #475569;
+    }
+
+    /* Thẻ thông báo kết quả */
+    .score-banner {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      border: 2px solid var(--secondary-color);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      display: none;
+    }
+
+    .score-banner.show {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .score-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .score-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--secondary-color);
+      margin: 0.3rem 0;
+    }
+
+    /* Từng item câu hỏi */
+    .question-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      transition: all 0.2s;
+    }
+
+    .question-card.status-correct {
+      border-color: var(--success-color);
+      background-color: #fcfdfc;
+    }
+
+    .question-card.status-incorrect {
+      border-color: var(--error-color);
+      background-color: #fffdfd;
+    }
+
+    .q-header {
+      margin-bottom: 0.85rem;
+    }
+
+    .q-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #1e293b;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: #ffffff;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .option-label:hover {
+      background-color: var(--primary-light);
+      border-color: #bfdbfe;
+    }
+
+    .option-label input[type="radio"] {
+      margin-top: 0.3rem;
+      accent-color: var(--primary-color);
+    }
+
+    /* Highlight đáp án sau khi nộp */
+    .option-label.is-user-selected {
+      border-color: var(--secondary-color);
+      background-color: #f0f9ff;
+    }
+
+    .option-label.is-correct-key {
+      border-color: var(--success-color) !important;
+      background-color: var(--success-bg) !important;
+      font-weight: 600;
+      color: #065f46;
+    }
+
+    .option-label.is-user-wrong {
+      border-color: var(--error-color) !important;
+      background-color: var(--error-bg) !important;
+      text-decoration: line-through;
+      color: #991b1b;
+    }
+
+    /* Phần hộp giải thích chi tiết */
+    .explanation-box {
+      margin-top: 1rem;
+      padding: 0.9rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      background-color: #f8fafc;
+      border-left: 4px solid var(--secondary-color);
+      display: none;
+    }
+
+    .explanation-box.show {
+      display: block;
+    }
+
+    .explanation-box .exp-title {
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0.35rem;
+    }
+
+    .explanation-box .quote {
+      font-style: italic;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+      display: inline-block;
+    }
+
+    /* Responsive cho màn hình dọc (Tablet & Điện thoại) */
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+        height: auto;
+      }
+      main {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+      }
+      .reading-pane {
+        border-right: none;
+        border-bottom: 2px solid var(--border-color);
+        max-height: 50vh;
+      }
+      .pane {
+        overflow-y: visible;
+        padding: 1.25rem 1rem;
+      }
+      header {
+        position: sticky;
+        top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Thanh tiêu đề điều khiển -->
+  <header>
+    <div class="brand-title">
+      <span>📖 Bài Đọc Hiểu Tiếng Anh</span>
+    </div>
+
+    <div class="controls-group">
+      <!-- Bộ chỉnh cỡ chữ -->
+      <div class="font-resizer" aria-label="Cỡ chữ">
+        <span>Cỡ chữ:</span>
+        <button type="button" class="btn-font" data-size="14px" title="Nhỏ">A-</button>
+        <button type="button" class="btn-font active" data-size="16px" title="Vừa">A</button>
+        <button type="button" class="btn-font" data-size="19px" title="Lớn">A+</button>
+      </div>
+
+      <!-- Đồng hồ bấm giờ -->
+      <div class="timer-badge" id="timerBadge" title="Thời gian làm bài còn lại">
+        ⏱️ <span id="timerText">15:00</span>
+      </div>
+
+      <!-- Nút nộp bài -->
+      <button type="button" class="btn-submit" id="submitBtn">Nộp Bài</button>
+    </div>
+  </header>
+
+  <!-- Khung hiển thị chia 2 bên -->
+  <main>
+    <!-- Bên trái: Văn bản bài đọc -->
+    <section class="pane reading-pane" aria-label="Văn bản bài đọc">
+      <article class="reading-card">
+        <div class="reading-header">
+          <h2 id="passageTitle"></h2>
+          <div class="reading-meta" id="passageMeta"></div>
+        </div>
+        <div class="reading-body" id="passageBody"></div>
+      </article>
+    </section>
+
+    <!-- Bên phải: Ô nhập tên & Câu hỏi trắc nghiệm -->
+    <section class="pane questions-pane" aria-label="Danh sách câu hỏi">
+      <div class="questions-container">
+        <!-- Khung nhập họ tên học sinh -->
+        <div class="student-info-card">
+          <label for="studentNameInput">Họ và tên học sinh:</label>
+          <input type="text" id="studentNameInput" placeholder="Nhập họ và tên của em..." autocomplete="off">
+        </div>
+
+        <!-- Bảng điểm (chỉ hiện sau khi nộp) -->
+        <div class="score-banner" id="scoreBanner">
+          <div class="score-title" id="scoreStudentName">🎉 Kết Quả Bài Làm</div>
+          <div class="score-number" id="scoreValue">0 / 10</div>
+          <p id="scoreFeedback" style="color: #475569; font-size: 0.95rem;"></p>
+        </div>
+
+        <form id="quizForm">
+          <!-- Các câu hỏi render tự động qua JS -->
+          <div id="questionsList" style="display: flex; flex-direction: column; gap: 1.25rem;"></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* =====================================================================
+       1. CƠ SỞ DỮ LIỆU BÀI ĐỌC & CÂU HỎI (Dành cho giáo viên chỉnh sửa)
+       ===================================================================== */
+    const QUIZ_DATA = {
+      meta: {
+        title: "Can Animals Talk?",
+        sourceInfo: "Select Readings (Intermediate) • Lexile ~850L • Độ dài: 320 từ",
+        durationMinutes: 15
+      },
+      passage: [
+        "In 1977, a young Harvard graduate named Irene Pepperberg brought a one-year-old African gray parrot into her lab, and attempted something very unusual. At a time when her fellow scientists thought that animals could only communicate on a very basic level, Irene set out to discover what was on a creature's mind by talking to it. The bird, named Alex, proved to be a very good pupil.",
+        "Scientists at the time believed that animals were incapable of any thought. They believed that animals only reacted to things because they were programmed by nature to react that way, not because they had the ability to think or feel. Any pet owner would probably disagree. Pepperberg disagreed, too, and started her work with Alex to prove them wrong.",
+        "Pepperberg bought Alex in a pet store. She let the store's assistant pick him out because she didn't want other scientists saying later that she'd deliberately chosen an especially smart bird for her work. Most researchers thought that Pepperberg's attempt to communicate with Alex would end in failure—after all, his brain was only about the size of a walnut.",
+        "However, Pepperberg's experiment did not fail. In fact, over the next few years, Alex learned to imitate almost one hundred and fifty English words, and was even able to reason and use those words on a basic level to communicate. For example, when Alex was shown an object and was asked about its shape, color, or material, he could label it correctly. He could understand that a key was a key no matter what its size or color, and could figure out how the key was different from others.",
+        "Pepperberg was careful not to exaggerate Alex's success and abilities. She did not claim that Alex could actually 'use' language. Instead, she said that Alex had learned to use a two-way communications code. Alex seemed to understand the turn-taking pattern of communication.",
+        "Although African gray parrots usually live to an age of fifty or so, Alex died suddenly when he was just thirty years old. However, in his short time on Earth, Alex helped to prove to many that animals are capable of far more complex communication than many scientists had ever expected.",
+        "Alex's last words to Pepperberg were, \"You be good. I love you.\""
+      ],
+      questions: [
+        {
+          id: 1,
+          prompt: "The reading passage is primarily about",
+          options: [
+            "how animals communicate with humans",
+            "one woman's successful experiment to communicate with a bird",
+            "how parrots are smarter than other animals",
+            "how Irene Pepperberg proved her fellow scientists wrong"
+          ],
+          correct: 1, // B
+          explanation: {
+            whyCorrect: "Đáp án B bao quát toàn bộ nội dung xuyên suốt bài: thí nghiệm thực tế của Irene Pepperberg trong việc dạy và giao tiếp thành công với chú vẹt Alex.",
+            whyIncorrect: "A quá rộng (chỉ nói về một cá thể vẹt); C sai vì bài không so sánh vẹt với các loài vật khác; D chỉ là một khía cạnh kết quả nghiên cứu chứ không phải chủ đề bao trùm.",
+            quote: "Irene set out to discover what was on a creature's mind by talking to it... Pepperberg's experiment did not fail."
+          }
+        },
+        {
+          id: 2,
+          prompt: "Irene Pepperberg did an experiment with a parrot",
+          options: [
+            "in her lab",
+            "at home",
+            "in a pet store",
+            "in nature"
+          ],
+          correct: 0, // A
+          explanation: {
+            whyCorrect: "Đáp án A được nêu trực tiếp ở câu đầu tiên của bài đọc.",
+            whyIncorrect: "B và D không được đề cập; C là nơi cô mua vẹt chứ không phải nơi tiến hành nghiên cứu thực nghiệm.",
+            quote: "...brought a one-year-old African gray parrot into her lab, and attempted something very unusual."
+          }
+        },
+        {
+          id: 3,
+          prompt: "According to the reading, other scientists believed that animals",
+          options: [
+            "could only communicate in nature",
+            "had the ability to communicate with pet owners",
+            "could communicate if they were programmed to do so",
+            "didn't have the ability to think"
+          ],
+          correct: 3, // D
+          explanation: {
+            whyCorrect: "Đáp án D chuẩn xác với nhận định của giới khoa học thời kỳ đó được nêu ở đầu đoạn 2.",
+            whyIncorrect: "A, B không có trong bài; C sai vì bài viết chỉ đề cập động vật phản xạ do tự nhiên lập trình ('programmed by nature to react'), không phải được lập trình để giao tiếp tư duy.",
+            quote: "Scientists at the time believed that animals were incapable of any thought... not because they had the ability to think or feel."
+          }
+        },
+        {
+          id: 4,
+          prompt: "In paragraph 3, \"deliberately\" is closest in meaning to",
+          options: [
+            "naturally",
+            "on purpose",
+            "cleverly",
+            "honestly"
+          ],
+          correct: 1, // B
+          explanation: {
+            whyCorrect: "'Deliberately' có nghĩa là 'cố ý, có chủ đích', đồng nghĩa với 'on purpose'.",
+            whyIncorrect: "'Naturally' = tự nhiên; 'cleverly' = khéo léo/thông minh; 'honestly' = trung thực.",
+            quote: "...she didn't want other scientists saying later that she'd deliberately chosen an especially smart bird..."
+          }
+        },
+        {
+          id: 5,
+          prompt: "Most researchers thought that Irene's experiment",
+          options: [
+            "would prove that the bird's brain was larger",
+            "would discover an especially smart bird",
+            "would not succeed",
+            "would attempt to communicate with her"
+          ],
+          correct: 2, // C
+          explanation: {
+            whyCorrect: "Cụm 'end in failure' (kết thúc trong thất bại) đồng nghĩa hoàn toàn với 'would not succeed'.",
+            whyIncorrect: "A sai vì bộ não chỉ nhỏ bằng hạt óc chó; B và D bóp méo thông tin trong đoạn 3.",
+            quote: "Most researchers thought that Pepperberg's attempt to communicate with Alex would end in failure..."
+          }
+        },
+        {
+          id: 6,
+          prompt: "From the reading, we can infer that a brain the size of a walnut",
+          options: [
+            "is not very large",
+            "is too large for a parrot's head",
+            "is believed to be large enough to communicate",
+            "is smaller than other parrot's brains"
+          ],
+          correct: 0, // A
+          explanation: {
+            whyCorrect: "Hạt quả óc chó (walnut) là hình ảnh so sánh ngụ ý não vẹt rất nhỏ, dẫn đến việc các nhà khoa học nghĩ nó không đủ năng lực giao tiếp.",
+            whyIncorrect: "B sai thực tế; C trái ngược với suy nghĩ nghi ngờ của các nhà nghiên cứu; D sai vì không có so sánh với các cá thể vẹt khác.",
+            quote: "...would end in failure after all, his brain was only about the size of a walnut."
+          }
+        },
+        {
+          id: 7,
+          prompt: "Which of the following statements is an opinion?",
+          options: [
+            "Many scientists don't believe animals can communicate.",
+            "Irene Pepperberg's experiment was very unusual.",
+            "A parrot's brain is about the size of a walnut.",
+            "Irene Pepperberg had the store's assistant pick out the parrot."
+          ],
+          correct: 1, // B
+          explanation: {
+            whyCorrect: "Từ 'unusual' (bất thường, kỳ lạ) là đánh giá chủ quan mang tính quan điểm (opinion) của người nói.",
+            whyIncorrect: "A, C, D đều là sự kiện thực tế có thể kiểm chứng (facts) được ghi nhận trong lịch sử thí nghiệm.",
+            quote: "...and attempted something very unusual."
+          }
+        },
+        {
+          id: 8,
+          prompt: "Which of the following is not true about Irene's parrot Alex?",
+          options: [
+            "He learned to use almost 150 English words.",
+            "He could label a number of objects.",
+            "He was able to have complicated conversations.",
+            "He could understand how one object was different from others."
+          ],
+          correct: 2, // C
+          explanation: {
+            whyCorrect: "Đoạn 4 nêu rõ Alex chỉ giao tiếp ở mức cơ bản ('use those words on a basic level') chứ không thể trò chuyện phức tạp ('complicated conversations').",
+            whyIncorrect: "A, B, D đều là các thông tin hoàn toàn đúng và được nêu rõ ở đoạn 4.",
+            quote: "...Alex learned to imitate almost one hundred and fifty English words, and was even able to reason and use those words on a basic level..."
+          }
+        },
+        {
+          id: 9,
+          prompt: "Which of the following is true about Irene's experiment?",
+          options: [
+            "She exaggerated Alex's abilities.",
+            "She thought she had proved that Alex could 'use' language.",
+            "She believed that Alex had learned a turn-taking communication pattern.",
+            "Only she could understand Alex's code of communication."
+          ],
+          correct: 2, // C
+          explanation: {
+            whyCorrect: "Đáp án C phản ánh đúng khẳng định của Irene ở đoạn 5.",
+            whyIncorrect: "A sai vì cô cẩn thận không nói quá ('careful not to exaggerate'); B sai vì cô không khẳng định vẹt biết 'dùng ngôn ngữ'; D không có thông tin trong bài.",
+            quote: "Alex seemed to understand the turn-taking pattern of communication."
+          }
+        },
+        {
+          id: 10,
+          prompt: "From the passage, we can infer that",
+          options: [
+            "Alex communicated that he may have actually loved Irene",
+            "most parrots die when they're 50 years old",
+            "humans cannot understand how to communicate complex ideas to animals",
+            "Alex's life was more complex than most people had expected"
+          ],
+          correct: 0, // A
+          explanation: {
+            whyCorrect: "Câu nói cuối cùng của Alex ('You be good. I love you.') khi gắn với bối cảnh chứng minh động vật có cảm xúc và suy nghĩ giúp người đọc suy luận Alex thực sự có tình cảm gắn kết với Irene.",
+            whyIncorrect: "B sai vì bài viết là 'fifty or so' (khoảng 50 tuổi); C trái ngược hoàn toàn với thành công của thí nghiệm; D lạc đề.",
+            quote: "Alex's last words to Pepperberg were, \"You be good. I love you.\""
+          }
+        }
+      ]
+    };
+
+    /* =====================================================================
+       2. KHỞI TẠO BIẾN & TRẠNG THÁI ỨNG DỤNG
+       ===================================================================== */
+    let timeLeft = QUIZ_DATA.meta.durationMinutes * 60;
+    let timerInterval = null;
+    let isSubmitted = false;
+
+    // DOM Elements
+    const passageTitleEl = document.getElementById("passageTitle");
+    const passageMetaEl = document.getElementById("passageMeta");
+    const passageBodyEl = document.getElementById("passageBody");
+    const questionsListEl = document.getElementById("questionsList");
+    const timerTextEl = document.getElementById("timerText");
+    const timerBadgeEl = document.getElementById("timerBadge");
+    const submitBtn = document.getElementById("submitBtn");
+    const studentNameInput = document.getElementById("studentNameInput");
+    const scoreBannerEl = document.getElementById("scoreBanner");
+    const scoreStudentNameEl = document.getElementById("scoreStudentName");
+    const scoreValueEl = document.getElementById("scoreValue");
+    const scoreFeedbackEl = document.getElementById("scoreFeedback");
+
+    /* =====================================================================
+       3. RENDER BÀI ĐỌC & CÂU HỎI RA GIAO DIỆN
+       ===================================================================== */
+    function initializeQuiz() {
+      // 1. Hiển thị bài đọc
+      passageTitleEl.textContent = QUIZ_DATA.meta.title;
+      passageMetaEl.textContent = QUIZ_DATA.meta.sourceInfo;
+      passageBodyEl.innerHTML = QUIZ_DATA.passage.map(p => `<p>${p}</p>`).join("");
+
+      // 2. Hiển thị 10 câu hỏi (Đã bỏ nhãn loại câu hỏi)
+      questionsListEl.innerHTML = QUIZ_DATA.questions.map((q) => {
+        const optionLetters = ["A", "B", "C", "D"];
+        const optionsHtml = q.options.map((opt, optIndex) => `
+          <label class="option-label" id="opt-label-${q.id}-${optIndex}">
+            <input type="radio" name="question_${q.id}" value="${optIndex}">
+            <span><strong>${optionLetters[optIndex]}.</strong> ${opt}</span>
+          </label>
+        `).join("");
+
+        return `
+          <article class="question-card" id="q-card-${q.id}">
+            <div class="q-header">
+              <span class="q-title">Question ${q.id}. ${q.prompt}</span>
+            </div>
+            <div class="options-list">
+              ${optionsHtml}
+            </div>
+            <div class="explanation-box" id="exp-${q.id}">
+              <div class="exp-title">💡 Giải thích chi tiết:</div>
+              <div><span class="quote">Trích bài đọc: "${q.explanation.quote}"</span></div>
+              <p style="margin-bottom: 0.35rem;"><strong>• Vì sao đúng:</strong> ${q.explanation.whyCorrect}</p>
+              <p style="color: #475569;"><strong>• Vì sao phương án khác sai:</strong> ${q.explanation.whyIncorrect}</p>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      // 3. Khởi động đồng hồ
+      startTimer();
+
+      // 4. Bắt sự kiện chọn đáp án (đổi màu viền nhẹ)
+      document.querySelectorAll('.option-label input[type="radio"]').forEach(radio => {
+        radio.addEventListener("change", function() {
+          const qName = this.name;
+          document.querySelectorAll(`input[name="${qName}"]`).forEach(r => {
+            r.closest('.option-label').classList.remove('is-user-selected');
+          });
+          this.closest('.option-label').classList.add('is-user-selected');
+        });
+      });
+    }
+
+    /* =====================================================================
+       4. BỘ ĐẾM THỜI GIAN & CẢNH BÁO
+       ===================================================================== */
+    function startTimer() {
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        // Cảnh báo khi còn dưới 1 phút (60 giây)
+        if (timeLeft <= 60 && !timerBadgeEl.classList.contains("warning")) {
+          timerBadgeEl.classList.add("warning");
+        }
+
+        // Hết giờ -> Tự động nộp
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          submitQuiz(true);
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerTextEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    /* =====================================================================
+       5. CHẤM ĐIỂM, KHÓA GIAO DIỆN & HIỆN LỜI GIẢI
+       ===================================================================== */
+    function submitQuiz(isAuto = false) {
+      if (isSubmitted) return;
+
+      const studentName = studentNameInput.value.trim();
+
+      if (!isAuto) {
+        // Nhắc học sinh điền tên nếu chưa nhập
+        if (!studentName) {
+          const fillName = confirm("Em chưa nhập họ và tên. Em có muốn tiếp tục nộp bài không?");
+          if (!fillName) {
+            studentNameInput.focus();
+            return;
+          }
+        }
+
+        // Kiểm tra số lượng câu đã làm
+        let answeredCount = 0;
+        QUIZ_DATA.questions.forEach(q => {
+          if (document.querySelector(`input[name="question_${q.id}"]:checked`)) {
+            answeredCount++;
+          }
+        });
+
+        if (answeredCount < QUIZ_DATA.questions.length) {
+          const confirmSubmit = confirm(`Em mới hoàn thành ${answeredCount}/${QUIZ_DATA.questions.length} câu. Em có chắc chắn muốn nộp bài sớm không?`);
+          if (!confirmSubmit) return;
+        }
+      }
+
+      isSubmitted = true;
+      clearInterval(timerInterval);
+
+      // Khóa nút nộp, ô tên & toàn bộ input radio
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Đã Nộp Bài";
+      studentNameInput.disabled = true;
+      document.querySelectorAll('input[type="radio"]').forEach(radio => radio.disabled = true);
+
+      let correctCount = 0;
+
+      // Chấm điểm và hiển thị đáp án đúng/sai
+      QUIZ_DATA.questions.forEach(q => {
+        const selectedRadio = document.querySelector(`input[name="question_${q.id}"]:checked`);
+        const userChoice = selectedRadio ? parseInt(selectedRadio.value, 10) : null;
+        const cardEl = document.getElementById(`q-card-${q.id}`);
+        const correctLabel = document.getElementById(`opt-label-${q.id}-${q.correct}`);
+        const expBox = document.getElementById(`exp-${q.id}`);
+
+        correctLabel.classList.add("is-correct-key");
+
+        if (userChoice === q.correct) {
+          correctCount++;
+          cardEl.classList.add("status-correct");
+        } else {
+          cardEl.classList.add("status-incorrect");
+          if (userChoice !== null) {
+            const userWrongLabel = document.getElementById(`opt-label-${q.id}-${userChoice}`);
+            userWrongLabel.classList.add("is-user-wrong");
+          }
+        }
+
+        expBox.classList.add("show");
+      });
+
+      // Hiển thị Banner điểm số và tên học sinh
+      scoreStudentNameEl.textContent = studentName 
+        ? `🎉 Kết Quả Bài Làm: ${studentName}` 
+        : `🎉 Kết Quả Bài Làm`;
+
+      scoreValueEl.textContent = `${correctCount} / ${QUIZ_DATA.questions.length}`;
+      let feedback = "";
+      const ratio = correctCount / QUIZ_DATA.questions.length;
+      if (ratio >= 0.9) {
+        feedback = "Xuất sắc! Em đọc hiểu bài rất tốt và có tư duy suy luận rất chắc chắn.";
+      } else if (ratio >= 0.7) {
+        feedback = "Làm tốt lắm! Hãy đọc lại phần giải thích các câu làm sai để củng cố thêm nhé.";
+      } else if (ratio >= 0.5) {
+        feedback = "Khá tốt! Hãy chú ý kỹ hơn các từ khóa ngữ cảnh và dữ liệu trong bài.";
+      } else {
+        feedback = "Cần cố gắng thêm! Hãy xem kỹ trích dẫn câu văn của bài đọc trong từng câu để rút kinh nghiệm.";
+      }
+      scoreFeedbackEl.textContent = feedback;
+      scoreBannerEl.classList.add("show");
+
+      // Cuộn lên đầu phần câu hỏi để xem kết quả
+      document.querySelector('.questions-pane').scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (isAuto) {
+        alert("Đã hết 15 phút làm bài! Hệ thống đã tự động khóa và chấm điểm bài làm của em.");
+      }
+    }
+
+    submitBtn.addEventListener("click", () => submitQuiz(false));
+
+    /* =====================================================================
+       6. ĐIỀU CHỈNH CỠ CHỮ
+       ===================================================================== */
+    const fontButtons = document.querySelectorAll(".btn-font");
+    fontButtons.forEach(btn => {
+      btn.addEventListener("click", function() {
+        fontButtons.forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        const newSize = this.getAttribute("data-size");
+        document.documentElement.style.setProperty("--base-font-size", newSize);
+      });
+    });
+
+    window.addEventListener("DOMContentLoaded", initializeQuiz);
+  </script>
+</body>
+</html>
